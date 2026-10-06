@@ -1,0 +1,17 @@
+{
+  "name": "Fer's Magic Schedule",
+  "short_name": "Fer's Magic",
+  "description": "Tu horario de clases con monedas, rachas y mucho cariño.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFE4F1",
+  "theme_color": "#FF69B4",
+  "lang": "es",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

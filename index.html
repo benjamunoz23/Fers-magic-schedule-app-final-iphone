@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fer's Magic">
+<meta name="theme-color" content="#FF69B4">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Fer's Magic Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFE4E1;
+    --bg-deep: #FFD9E8;
+    --fucsia: #FF1493;
+    --chicle: #FF69B4;
+    --white: #FFFFFF;
+    --gold: #FFD700;
+    --ink: #6E1F4E;
+    --ink-soft: #A24A82;
+    --green: #38C77E;
+    --blue: #DCEEFF;
+    --shadow: 0 18px 40px -18px rgba(190, 30, 110, 0.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,255,255,0.6) 0, transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(255,105,180,0.25) 0, transparent 45%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg-deep) 100%);
+    font-family:'Nunito', sans-serif;
+    color: var(--ink);
+    display:flex;
+    justify-content:center;
+    padding: 24px 12px 50px;
+  }
+  .app{ width:100%; max-width:430px; }
+  .card{
+    background:var(--white);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    border: 1px solid rgba(255,105,180,0.25);
+  }
+  
+  header{
+    position:relative;
+    padding: 26px 24px 22px;
+    background: linear-gradient(135deg, var(--fucsia), var(--chicle));
+    text-align:center;
+    overflow:hidden;
+  }
+  header::before{
+    content:""; position:absolute; inset:0;
+    background-image: radial-gradient(rgba(255,255,255,0.35) 1.5px, transparent 1.5px);
+    background-size: 16px 16px; opacity:.5;
+  }
+  .sparkle{ position:absolute; color: rgba(255,255,255,0.85); font-size: 14px; animation: twinkle 2.4s ease-in-out infinite; }
+  @keyframes twinkle{ 0%,100%{opacity:.25; transform:scale(.8);} 50%{opacity:1; transform:scale(1.15);} }
+  header h1{ position:relative; margin:4px 0 4px; font-family:'Quicksand', sans-serif; font-weight:700; font-size: 24px; color: var(--white); }
+  header p{ position:relative; margin:0; color: rgba(255,255,255,0.92); font-weight:600; font-size:14px; }
+  .crown-icon{ font-size:28px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); }
+
+  .status{ display:flex; justify-content:space-between; align-items:center; padding: 13px 20px; background: #FFF1F6; border-bottom: 1px solid rgba(255,105,180,0.18); }
+  .points{ display:flex; align-items:center; gap:8px; font-family:'Quicksand', sans-serif; font-weight:700; font-size:16.5px; }
+  .level-badge{ background: var(--white); color: var(--fucsia); font-weight:700; font-size:12px; padding: 6px 11px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+
+  nav.tabs{ display:flex; padding: 10px 12px 0; gap:4px; overflow-x:auto; }
+  nav.tabs button{ flex:1; white-space:nowrap; border:none; background:transparent; padding: 9px 7px; font-family:'Quicksand', sans-serif; font-weight:700; font-size:12px; color: var(--ink-soft); border-radius: 14px 14px 0 0; cursor:pointer; }
+  nav.tabs button.active{ color: var(--fucsia); background: var(--bg); }
+
+  main{ padding: 20px 20px 24px; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* Contenedor del Avatar SVG Rediseñado */
+  .avatar-wrap{ display:flex; flex-direction:column; align-items:center; margin-bottom: 16px; }
+  .doll-card{
+    width: 190px; height: 320px;
+    background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #FFF0F5 100%);
+    border: 2px dashed rgba(255,105,180,0.45);
+    border-radius: 28px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative;
+    box-shadow: inset 0 0 15px rgba(255,182,193,0.3);
+    transition: width 0.35s ease;
+  }
+  .doll-card.wide{ width: 290px; }
+  .doll-card .badge{ position:absolute; top:-10px; right:-10px; background: var(--white); border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.12); font-size:16px; z-index: 10; }
+
+  .avatar-svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,105,180,0.25)); }
+
+  .outfit-badge-container { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+  .outfit-tag { background: #FFF0F6; border: 1px solid #FFD3E6; color: #B3186F; font-size: 11px; font-weight:700; padding: 3px 10px; border-radius: 12px; }
+
+  .class-card, .notif-box, .backup-box, .streak-box, .reminder-item, .gift-card { background: var(--white); border: 1.5px solid rgba(255,105,180,0.3); border-radius: 20px; padding: 16px; margin-bottom: 16px; }
+  .class-card{ position:relative; box-shadow: 0 8px 20px -14px rgba(190,30,110,.5); }
+  .class-card .tag{ position:absolute; top:-12px; left:16px; background: var(--fucsia); color:var(--white); font-size:11px; font-weight:700; padding: 5px 12px; border-radius: 999px; }
+  .class-card h3{ margin: 6px 0 8px; font-family:'Quicksand', sans-serif; font-size:17px; color: #B3186F; }
+  .class-card .meta{ display:flex; flex-wrap:wrap; gap:6px 10px; font-size:12.5px; color: var(--ink-soft); font-weight:600; margin-top: 2px; }
+  .class-card .empty{ font-size:14px; color: var(--ink-soft); font-weight:600; margin:6px 0 0; }
+
+  .checkin-btn{ width:100%; padding: 15px; border:none; border-radius: 18px; font-family:'Quicksand', sans-serif; font-weight:700; font-size: 17px; color: var(--white); background: linear-gradient(120deg, var(--fucsia), var(--chicle)); cursor:pointer; box-shadow: 0 10px 22px -8px rgba(255,20,147,0.55); }
+  .checkin-btn:active{ transform: scale(.97); }
+  .checkin-btn.done{ background: var(--green); box-shadow:none; cursor:default; }
+  .checkin-btn:disabled{ background: #F1B9D3; box-shadow:none; cursor:not-allowed; }
+
+  .toast{ margin-top: 12px; text-align:center; font-weight:700; color: #B3186F; font-size: 13.5px; min-height: 18px; }
+
+  table.sched{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.sched caption{ text-align:left; font-family:'Quicksand', sans-serif; font-weight:700; color:#B3186F; font-size:14px; margin-bottom:8px; }
+  table.sched th{ text-align:left; font-size:11px; color:var(--ink-soft); padding:6px 4px; border-bottom:2px solid var(--bg-deep); }
+  table.sched td{ padding:8px 4px; border-bottom:1px solid #FCE6EF; vertical-align:top; }
+  table.sched tr.today td{ background:#FFEFF6; }
+  .sched-day{ font-weight:700; color:#B3186F; font-family:'Quicksand', sans-serif; }
+  .sched-room{ display:block; color:var(--ink-soft); font-size:11px; margin-top:2px; }
+
+  .store-section{ margin-bottom:18px; }
+  .store-section h4{ font-family:'Quicksand', sans-serif; font-size:13.5px; color:#B3186F; margin:0 0 10px; }
+  .store-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .item{ background: #FFF6FA; border: 1.5px solid rgba(255,105,180,0.28); border-radius: 16px; padding: 12px 8px 14px; text-align:center; }
+  .item .emoji{ font-size: 30px; }
+  .item p{ margin: 5px 0 8px; font-weight:700; font-size: 12px; color: var(--ink); min-height:30px; display:flex; align-items:center; justify-content:center; }
+  .item button{ border:none; border-radius: 999px; padding: 6px 12px; font-weight:700; font-size: 11.5px; background: var(--white); color: var(--fucsia); border: 1.5px solid rgba(255,20,147,0.3); cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition: all 0.2s; }
+  .item.owned button{ background: var(--green); color: var(--white); border-color: var(--green); }
+  /* Styling for unequip state */
+  .item.owned.equipped button{ background: #FFE9F2; color: #B3186F; border-color: #FFD3E6; }
+  .item.special button{ background: var(--fucsia); color: var(--white); border-color: var(--fucsia); }
+  .item.equipped{ outline: 2px solid var(--gold); }
+
+  .backup-box textarea{ width:100%; min-height:70px; font-size:11px; border-radius:10px; border:1px solid rgba(255,105,180,0.3); padding:8px; font-family:monospace; resize:vertical; }
+  .backup-box .row{ display:flex; gap:8px; margin-top:8px; }
+  .backup-box button{ flex:1; border:none; border-radius:12px; padding:9px; font-weight:700; font-size:12.5px; cursor:pointer; background:var(--white); color:var(--fucsia); border:1.5px solid rgba(255,20,147,0.3); }
+  .howto{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 14px; }
+  .howto b{ color:var(--ink); }
+
+  .notif-box p.title{ margin:0 0 10px; font-weight:700; font-size:12.5px; color:var(--ink); }
+  .notif-btn{ width:100%; padding:12px; border:none; border-radius:14px; font-family:'Quicksand', sans-serif; font-weight:700; font-size:14px; color:var(--white); background:linear-gradient(120deg, var(--fucsia), var(--chicle)); cursor:pointer; box-shadow: 0 8px 18px -8px rgba(255,20,147,0.5); }
+  .notif-btn:disabled{ opacity:.7; cursor:default; box-shadow:none; }
+  .lead-box{ margin-top:12px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,0.6); }
+  .lead-title{ margin:0 0 6px; font-family:'Quicksand', sans-serif; font-weight:700; font-size:13px; color:var(--ink-soft); }
+  .lead-opt{ display:flex; align-items:center; gap:10px; padding:7px 0; font-size:14px; font-weight:700; cursor:pointer; }
+  .lead-opt input{ width:20px; height:20px; accent-color:#FF1493; }
+  .cal-help{ margin:0 0 10px; font-size:13px; line-height:1.4; color:var(--ink-soft); }
+  .reminder-cal{ border:none; background:rgba(255,105,180,0.15); border-radius:50%; width:34px; height:34px; min-width:34px; font-size:16px; cursor:pointer; }
+  .notif-status{ font-size:12px; color:var(--ink-soft); font-weight:700; margin:9px 0 0; min-height:14px; }
+  .warn-note{ font-size:11.3px; color:#B3186F; background:#FFE9F2; border-radius:10px; padding:9px 10px; margin:10px 0 0; line-height:1.55; }
+
+  .streak-box{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(120deg,#FFF0F6,#FFE3F0); padding:10px 14px; }
+  .streak-count{ font-family:'Quicksand', sans-serif; font-weight:700; font-size:14px; color:#B3186F; }
+  .streak-claim-btn{ display:none; align-items:center; gap:4px; border:none; border-radius:999px; padding:7px 12px; font-family:'Quicksand', sans-serif; font-weight:700; font-size:12px; color:var(--white); background:linear-gradient(120deg, var(--gold), #FFB020); cursor:pointer; box-shadow:0 6px 14px -6px rgba(255,176,32,0.6); }
+
+  .reminder-item.done .reminder-info strong{ text-decoration:line-through; opacity:0.55; }
+  .reminder-check{ border:none; background:#FFF0F6; color:var(--green); width:28px; height:28px; min-width:28px; border-radius:50%; font-weight:700; cursor:pointer; font-size:13px; }
+  .reminder-item.done .reminder-check{ background:var(--green); color:var(--white); }
+
+  .reminder-form{ display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .reminder-form input{ border:1.5px solid rgba(255,105,180,0.3); border-radius:12px; padding:10px 12px; font-family:'Nunito', sans-serif; font-size:13px; color:var(--ink); background:#FFF6FA; width:100%; }
+  .reminder-form input:focus{ outline:2px solid var(--chicle); }
+  .reminder-form label{ font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:-4px; }
+  .reminder-add-btn{ border:none; border-radius:14px; padding:12px; font-family:'Quicksand', sans-serif; font-weight:700; font-size:14px; color:var(--white); background:linear-gradient(120deg, var(--fucsia), var(--chicle)); cursor:pointer; margin-top:4px; }
+  .reminders-list{ display:flex; flex-direction:column; gap:8px; }
+  .reminder-item{ display:flex; align-items:center; gap:10px; padding:10px 12px; }
+  .reminder-info{ display:flex; flex-direction:column; flex:1; min-width:0; }
+  .reminder-info strong{ font-size:13px; color:var(--ink); overflow-wrap:break-word; }
+  .reminder-info span{ font-size:11px; color:var(--ink-soft); font-weight:700; margin-top:2px; }
+  .reminder-del{ border:none; background:#FFE9F2; color:var(--fucsia); width:28px; height:28px; min-width:28px; border-radius:50%; font-weight:700; cursor:pointer; font-size:13px; }
+  .reminder-past{ font-size:10px; color:#B0A0AE; font-weight:700; }
+  .remtoast{ text-align:center; font-weight:700; color:#B3186F; font-size:12.5px; min-height:16px; margin-top:2px; }
+
+  .gift-card{ background: linear-gradient(160deg, #FFF6FA, #FFE9F2); padding: 20px; text-align:center; }
+  .gift-card .gift-emoji{ font-size: 42px; margin-bottom: 8px; }
+  .gift-card h3{ font-family:'Quicksand', sans-serif; color:#B3186F; margin: 4px 0 8px; }
+  .gift-progress-track{ background:#FBD7E6; border-radius:999px; height:10px; overflow:hidden; margin: 12px 0 6px; }
+  .gift-progress-fill{ background: linear-gradient(120deg, var(--fucsia), var(--gold)); height:100%; border-radius:999px; transition: width .4s ease; }
+  .gift-progress-label{ font-size:11.5px; color:var(--ink-soft); font-weight:700; }
+  .gift-letter{ text-align:left; background: var(--white); border-radius:18px; padding:18px; margin-top:14px; box-shadow: 0 8px 20px -14px rgba(190,30,110,.5); }
+  .gift-letter p{ font-size: 13.5px; line-height:1.75; color: var(--ink); margin: 0 0 12px; }
+  .gift-letter p:last-child{ margin-bottom:0; }
+  .gift-signature{ text-align:right; font-family:'Quicksand', sans-serif; font-weight:700; color:#B3186F; font-style:italic; }
+
+  footer.reset{ text-align:center; margin-top: 16px; }
+  footer.reset button{ background:none; border:none; color: var(--ink-soft); font-size: 11.5px; text-decoration:underline; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+    <header>
+      <span class="sparkle" style="top:8px; left:16px; animation-delay:.2s;">✦</span>
+      <span class="sparkle" style="top:20px; right:24px; animation-delay:.9s;">✧</span>
+      <span class="sparkle" style="bottom:10px; left:36%; animation-delay:1.4s;">✦</span>
+      <div class="crown-icon">👑</div>
+      <h1 id="greetingTitle">¡Hola, mi princesa!</h1>
+      <p id="greetingSub">Te amo muchísimo, Fer 💖</p>
+    </header>
+
+    <div class="status">
+      <div class="points">👑 <span id="pointsValue">0</span> Monedas</div>
+      <div class="level-badge" id="levelBadge">Nivel: Princesa Aprendiz</div>
+    </div>
+
+    <nav class="tabs">
+      <button class="active" data-tab="home">Hoy</button>
+      <button data-tab="week">Horario</button>
+      <button data-tab="store">Boutique</button>
+      <button data-tab="reminders">Recordatorios</button>
+      <button data-tab="gift">Sorpresa</button>
+      <button data-tab="settings">Ajustes</button>
+    </nav>
+
+    <main>
+      <section class="view active" id="view-home">
+        <div class="avatar-wrap">
+          <div class="doll-card" id="dollCard">
+            <div class="badge">✨</div>
+
+            <!-- SVG Vectorial Rediseñado Completamente -->
+            <svg id="mainSvg" class="avatar-svg" viewBox="0 0 180 320" xmlns="http://www.w3.org/2000/svg">
+              <!-- Sombras base (chica cx=90, benji cx=190) -->
+              <ellipse cx="90" cy="308" rx="40" ry="8" fill="#F0C2D4" opacity="0.6"/>
+              <ellipse cx="190" cy="308" rx="48" ry="8" fill="#F0C2D4" opacity="0.0" id="shadowBenji"/>
+
+              <!-- Capa Accesorios Traseros (Mochila, Benji) -->
+              <g id="svgAccessoryBack"></g>
+
+              <!-- ================= CHICA (Cuerpo Base cx=90) ================= -->
+              <g id="girlBase">
+                <!-- Pelo Trasero -->
+                <path d="M 48 38 Q 90 6 132 38 Q 146 92 140 165 Q 136 222 120 244 Q 119 180 123 128 Q 125 70 111 44 Q 90 28 69 44 Q 55 70 57 128 Q 61 180 60 244 Q 44 222 40 165 Q 34 92 48 38 Z" fill="#2B2229"/>
+
+                <!-- Torso Base (Reloj de Arena) -->
+                <path d="M 66 92 Q 90 86 114 92 L 102 135 L 78 135 Z" fill="#FEE0D2"/>
+                <!-- Caderas Femeninas Base -->
+                <path d="M 78 135 L 102 135 C 120 155 120 175 110 184 Q 90 190 70 184 C 60 175 60 155 78 135 Z" fill="#FEE0D2"/>
+                
+                <!-- Ropa Interior Base (Bikini Blanco) -->
+                <path d="M 70 160 Q 90 170 110 160 C 112 172 108 182 102 184 Q 90 190 78 184 C 72 182 68 172 70 160 Z" fill="#FFFFFF"/>
+
+                <!-- Brazos -->
+                <path d="M 60 98 Q 44 130 48 165 Q 49 178 56 182 Q 64 178 62 168 Q 58 135 72 102 Z" fill="#FEE0D2"/>
+                <path d="M 120 98 Q 136 130 132 165 Q 131 178 124 182 Q 116 178 118 168 Q 122 135 108 102 Z" fill="#FEE0D2"/>
+                
+                <!-- Piernas (Alineadas con caderas anchas) -->
+                <rect x="72" y="178" width="14" height="118" rx="7" fill="#FEE0D2"/>
+                <rect x="94" y="178" width="14" height="118" rx="7" fill="#FEE0D2"/>
+                
+                <!-- Cuello -->
+                <rect x="82" y="78" width="16" height="24" rx="6" fill="#FEE0D2"/>
+                <!-- Cabeza Delgada y Larga -->
+                <ellipse cx="90" cy="54" rx="24" ry="32" fill="#FEE0D2"/>
+
+                <!-- Cara -->
+                <path d="M 72 46 Q 76 43 80 46" stroke="#C98B72" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <path d="M 100 46 Q 104 43 108 46" stroke="#C98B72" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <ellipse cx="78" cy="54" rx="4.2" ry="5.8" fill="#2C1A1D"/>
+                <ellipse cx="102" cy="54" rx="4.2" ry="5.8" fill="#2C1A1D"/>
+                <circle cx="79.5" cy="51.5" r="1.4" fill="#FFFFFF"/>
+                <circle cx="103.5" cy="51.5" r="1.4" fill="#FFFFFF"/>
+                <ellipse cx="72" cy="62" rx="6" ry="3.5" fill="#FF8DA1" opacity="0.5"/>
+                <ellipse cx="108" cy="62" rx="6" ry="3.5" fill="#FF8DA1" opacity="0.5"/>
+                <path id="moodMouth" d="M 84 68 Q 90 73 96 68" stroke="#D85A75" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+                <!-- Pelo Frontal -->
+                <path d="M 62 74 Q 50 30 90 16 Q 130 30 118 74 Q 110 46 102 40 Q 96 52 90 42 Q 84 52 78 40 Q 70 46 62 74 Z" fill="#2B2229"/>
+                <path d="M 60 74 Q 52 102 55 138 Q 60 141 64 130 Q 62 100 68 76 Z" fill="#2B2229"/>
+                <path d="M 120 74 Q 128 102 125 138 Q 120 141 116 130 Q 118 100 112 76 Z" fill="#2B2229"/>
+                <path d="M 82 24 Q 84 34 82 44" stroke="#453842" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.55"/>
+                <path d="M 98 24 Q 96 34 98 44" stroke="#453842" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.55"/>
+              </g>
+
+              <!-- ================= CAPAS DE VESTIMENTA ================= -->
+              <g id="svgBottom"></g>
+              <g id="svgTop"></g>
+              <g id="svgShoes"></g>
+              <g id="svgAccessory"></g>
+              
+              <!-- Mascota (Luna) -->
+              <g id="svgPet"></g>
+              
+              <!-- Efectos de ánimo (Corazones, Zzz, Lágrima) -->
+              <g id="moodFx"></g>
+            </svg>
+          </div>
+
+          <div class="outfit-badge-container" id="outfitBadges">
+            <span class="outfit-tag" id="tagAcc">🎀 Lazo</span>
+            <span class="outfit-tag" id="tagTop">👗 Vestido Rosa</span>
+            <span class="outfit-tag" id="tagShoes">👟 Zapatitos</span>
+            <span class="outfit-tag" id="tagPet" style="display:none;">🐾 Luna</span>
+          </div>
+        </div>
+
+        <div class="streak-box">
+          <span class="streak-count" id="streakCount">🔥 Racha: 0 días</span>
+          <button class="streak-claim-btn" id="streakClaimBtn">🎁 Reclamar premio</button>
+        </div>
+
+        <div class="class-card">
+          <span class="tag" id="classTag">Próxima clase</span>
+          <h3 id="className">Sin clases por ahora</h3>
+          <div class="meta" id="classMeta"></div>
+          <p class="empty" id="classEmpty" style="display:none;">Hoy no tienes más clases, ¡a descansar mi amor! 💗</p>
+        </div>
+
+        <button class="checkin-btn" id="checkinBtn">¡LLEGUÉ! 📍</button>
+        <div class="toast" id="toast"></div>
+      </section>
+
+      <section class="view" id="view-week">
+        <table class="sched">
+          <caption>Horario VI semestre 2026</caption>
+          <thead><tr><th>Día</th><th>Hora</th><th>Ramo</th></tr></thead>
+          <tbody id="weekBody"></tbody>
+        </table>
+      </section>
+
+      <section class="view" id="view-store">
+        <div id="storeContainer"></div>
+      </section>
+
+      <section class="view" id="view-reminders">
+        <div class="reminder-form">
+          <label for="remTitle">Título</label>
+          <input type="text" id="remTitle" placeholder="Ej: Entregar avance de práctica" maxlength="60">
+          <label for="remDate">Fecha</label>
+          <input type="date" id="remDate">
+          <label for="remTime">Hora</label>
+          <input type="time" id="remTime">
+          <button class="reminder-add-btn" id="addReminderBtn">💌 Agregar recordatorio</button>
+          <div class="remtoast" id="remToast"></div>
+        </div>
+        <div class="reminders-list" id="remindersList"></div>
+      </section>
+
+      <section class="view" id="view-gift">
+        <div id="giftContainer"></div>
+      </section>
+
+      <section class="view" id="view-settings">
+        <p class="howto">
+          <b>Para dejarla como app en el iPhone de Fer:</b><br>
+          1. Abre el link en <b>Safari</b> (no funciona igual en Chrome).<br>
+          2. Toca el botón de compartir <b>⬆️</b>.<br>
+          3. Elige <b>"Agregar a pantalla de inicio"</b>.<br>
+          Así le queda un ícono propio y se abre a pantalla completa, sin la barra del navegador.
+        </p>
+
+        <div class="notif-box">
+          <p class="title">🔔 Avisos de clases y recordatorios</p>
+          <button class="notif-btn" id="notifBtn">Activar notificaciones</button>
+          <p class="notif-status" id="notifStatus"></p>
+          <div class="lead-box" id="leadBox">
+            <p class="lead-title">¿Cuándo quieres que te avise?</p>
+            <label class="lead-opt"><input type="checkbox" data-lead="m5"> ⏰ 5 minutos antes</label>
+            <label class="lead-opt"><input type="checkbox" data-lead="h1"> 🕐 1 hora antes</label>
+            <label class="lead-opt"><input type="checkbox" data-lead="w1"> 📅 1 semana antes</label>
+          </div>
+          <div class="lead-box" id="calBox">
+            <p class="lead-title">📱 ¿Tienes iPhone?</p>
+            <p class="cal-help">Agrega tus clases a tu Calendario y el iPhone te avisará con sonido, aunque la app esté cerrada. Se usan los avisos que marcaste arriba.</p>
+            <button class="reminder-add-btn" id="calClassesBtn">📅 Agregar mis clases al calendario</button>
+          </div>
+          <p class="warn-note">⚠️ <b>Importante:</b> estos avisos son notificaciones locales del navegador — funcionan mientras la app está abierta (o se minimizó hace poco). iOS no permite que una app web avise si lleva mucho rato completamente cerrada, a menos que tenga un servidor propio enviando el aviso (push real). Para que le lleguen bien: que abra la app en la mañana y la deje como pestaña activa, o que la revise cada 1-2 horas durante el día.</p>
+        </div>
+
+        <p class="howto">
+          <b>Sobre el progreso:</b> se guarda solo, automáticamente, en ese iPhone. Si borra datos de Safari o usa modo privado, se pierde — por eso puedes generar un código de respaldo aquí abajo y guardarlo en Notas.
+        </p>
+        <div class="backup-box">
+          <p style="margin:0 0 8px; font-weight:700; font-size:12.5px;">Respaldo de progreso</p>
+          <textarea id="backupText" placeholder="Aquí aparece tu código de respaldo..."></textarea>
+          <div class="row">
+            <button id="genBackupBtn">Generar código</button>
+            <button id="restoreBackupBtn">Restaurar desde código</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="reset">
+        <button id="resetBtn">Reiniciar progreso</button>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  const SCHEDULE = {
+    1: [
+      {name:"Taller: Práctica pedagógica en nivel transición", start:"11:55", end:"14:10", room:"Sala D-002", prof:"Lilian Villablanca"},
+      {name:"Evaluación de los aprendizajes", start:"15:35", end:"18:55", room:"Sala i-108", prof:"Omaira Golcheidt"},
+    ],
+    2: [
+      {name:"Familia y comunidad educativa", start:"08:30", end:"10:35", room:"Sala D-102", prof:"Francisca Muñoz"},
+      {name:"Enfoques y métodos de enseñanza-aprendizaje del idioma inglés I", start:"10:50", end:"12:55", room:"", prof:"Marcela Campos"},
+    ],
+    3: [
+      {name:"Ética Cristiana", start:"15:30", end:"18:40", room:"Sala i-107", prof:""},
+    ],
+    4: [
+      {name:"Práctica pedagógica Nivel transición", start:"08:30", end:"12:55", room:"No requiere sala", prof:""},
+      {name:"Metodologías de la investigación", start:"14:30", end:"16:35", room:"Sala F-309", prof:"Fraño Paukner"},
+    ],
+    5: [
+      {name:"Enseñanza aprendizaje de las artes", start:"08:30", end:"10:35", room:"Sala A-102", prof:"Constanza Pérez"},
+      {name:"Diversidad e inclusión en la educación parvularia", start:"10:50", end:"12:55", room:"Sala A-102", prof:"Francisca Muñoz"},
+    ],
+  };
+  const DAY_NAMES = {1:"Lunes",2:"Martes",3:"Miércoles",4:"Jueves",5:"Viernes"};
+
+  const MORNING_MSGS = ["¡Buenos días mi princesa hermosa! Te amo", "Arriba, futura educadora favorita del mundo 💕", "Hoy también vas a brillar, mi amor"];
+  const AFTERNOON_MSGS = ["¡Tú puedes con todo hoy, mi niña!", "Vas increíble, sigue así princesa", "Un ratito más y ya terminas, te amo"];
+  const EVENING_MSGS = ["Eres la mejor futura educadora, te amo princesa", "Descansa hermosa, hiciste un gran trabajo hoy", "Mañana será otro día mágico, mi amor"];
+
+  const HOUR_BEFORE_MSGS = [
+    "Princesa, en 1 hora tienes clase de {class} en {room}. Prepárate con calma, ¡tú puedes! ✨"
+  ];
+  const FIVE_MIN_MSGS = [
+    "¡Llegó la hora, mi amor! Entra a la sala y presiona el botón para ganar tus monedas de hoy 👑"
+  ];
+  function fillTemplate(tpl, c){
+    return tpl.replace("{class}", c.name).replace("{room}", c.room || "tu sala de siempre");
+  }
+  function pickMsg(arr, c){
+    const tpl = arr[Math.floor(Math.random()*arr.length)];
+    return fillTemplate(tpl, c);
+  }
+
+  const STREAK_REWARD_MSG = "🎁 ¡Racha de {n} días! Vale por un masaje de tu novio 💆‍♀️ (+150 monedas de regalo)";
+  const STREAK_MILESTONE = 5;
+
+  const SECRET_GIFT_THRESHOLD = 30; 
+  const SECRET_GIFT_TITLE = "Para ti, mi princesa";
+  const SECRET_GIFT_LETTER = [
+    "Fer, esto que lees no es un mensaje más de la app: es la prueba de que cada mañana que te levantaste, cada clase a la que llegaste a tiempo, cada recordatorio que marcaste como hecho, sumó para algo mucho más grande que puntos y monedas.",
+    "Quiero que sepas que admiro profundamente tu constancia. No es fácil sostener la disciplina día tras día, y tú lo haces mientras además sueñas en grande con ser una gran educadora. Eso me llena de orgullo.",
+    "Si alguna vez sientes que nadie nota el esfuerzo silencioso de despertarte temprano o de organizar tu semana, quiero que esta carta te recuerde que yo sí lo veo, y que cada uno de esos días cuenta para mí.",
+    "Gracias por dejarme acompañarte en este camino, aunque sea desde una app hecha con cariño. Te amo muchísimo, y esto recién empieza."
+  ];
+  const SECRET_GIFT_SIGNATURE = "— Tu novio, que te admira cada día";
+
+  const STORE_CATALOG = [
+    { section:"Colección Hello Kitty & Sanrio", items:[
+      {id:"bow", emoji:"🎀", name:"Lazo clásico rojo", cost:300, slot:"accessory"},
+      {id:"poleron", emoji:"🧥", name:"Polerón Hello Kitty", cost:600, slot:"top"},
+      {id:"mochila", emoji:"🎒", name:"Mochila Kuromi", cost:350, slot:"accessory"},
+      {id:"zap-sanrio", emoji:"👟", name:"Zapatillas Sanrio", cost:400, slot:"shoes"},
+    ]},
+    { section:"Vestidos de Princesa", items:[
+      {id:"default-top", emoji:"👗", name:"Vestido rosa", cost:0, slot:"top", dress:true},
+      {id:"cenicienta", emoji:"🩵", name:"Vestido Cenicienta", cost:800, slot:"top", dress:true},
+      {id:"bella", emoji:"💛", name:"Vestido de Bella", cost:750, slot:"top", dress:true},
+    ]},
+    { section:"Ropa Versátil (Aesthetic)", items:[
+      {id:"encaje", emoji:"👚", name:"Top de encaje", cost:350, slot:"top"},
+      {id:"mezclilla", emoji:"🧥", name:"Chaqueta de mezclilla", cost:400, slot:"top"},
+      {id:"tablones", emoji:"🩱", name:"Falda tablones", cost:350, slot:"bottom"},
+      {id:"momjeans", emoji:"👖", name:"Mom jeans", cost:400, slot:"bottom"},
+    ]},
+    { section:"Zapatos", items:[
+      {id:"cristal", emoji:"✨", name:"Zapatitos de cristal", cost:600, slot:"shoes"},
+      {id:"botas", emoji:"👢", name:"Botas de plataforma", cost:500, slot:"shoes"},
+      {id:"maryjane", emoji:"🥿", name:"Zapatos Mary Jane", cost:450, slot:"shoes"},
+      {id:"chunky", emoji:"👟", name:"Zapatillas chunky", cost:400, slot:"shoes"},
+    ]},
+    { section:"Familia y Amigos", items:[
+      {id:"luna", emoji:"🐾", name:"Luna", cost:500, slot:"pet"},
+      {id:"benji", emoji:"💑", name:"Benji (tu novio)", cost:900, slot:"accessory"},
+    ]},
+    { section:"Especial", items:[
+      {id:"cita", emoji:"☕", name:"Cita Especial 💖", cost:2000, slot:"special"},
+    ]},
+  ];
+  const ALL_ITEMS = STORE_CATALOG.flatMap(s=>s.items);
+
+  const LEVELS = [
+    {min:0, name:"Princesa Aprendiz"},
+    {min:300, name:"Princesa Real"},
+    {min:800, name:"Princesa Dorada"},
+    {min:1500, name:"Reina Suprema"},
+  ];
+
+  const STORAGE_KEY = "fer-magic-schedule-v7";
+  // Monedas iniciales: 120 (sistema real de progreso)
+  let state = {
+    points: 120,
+    owned: ["bow", "default-top"],
+    equipped: {accessory:"bow", top:"default-top", bottom:null, shoes:null, pet:null},
+    checkins: {},
+    processedPenalties: [],
+    reminders: [],
+    notified: {},
+    streakRewardsClaimed: [],
+    leadPrefs: { m5:true, h1:true, w1:false }
+  };
+
+  function getLead(){
+    return Object.assign({ m5:true, h1:true, w1:false }, (state && state.leadPrefs) || {});
+  }
+
+  // Inicio: 120 monedas y la sorpresa parte con 13 asistencias de avance (de 30).
+  const START_GIFT = 13;
+  const START_COINS = 120;
+  let bonusJustApplied = false;
+  function initStartBonus(isFresh){
+    // +120 monedas de regalo, una sola vez, para quien ya tenía progreso guardado
+    if(!state.coinBonus){
+      if(!isFresh){
+        state.points = (state.points >= 999999) ? START_COINS : (state.points || 0) + START_COINS;
+        bonusJustApplied = true;
+      }
+      state.coinBonus = true;
+      saveState();
+    }
+    if(typeof state.streakBase !== "undefined"){
+      // limpia una versión anterior que daba racha inicial
+      delete state.streakBase;
+      state.streakRewardsClaimed = (state.streakRewardsClaimed || []).filter(n => n !== 5 && n !== 10);
+    }
+    if(!state.startDate){
+      state.startDate = todayKey(new Date());
+      state.giftBase = START_GIFT;
+    }
+  }
+
+  function loadState(){
+    let isFresh = true;
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){ isFresh = false; const parsed = JSON.parse(raw); state = Object.assign(state, parsed); }
+    }catch(e){ console.warn("No se pudo leer el progreso", e); }
+    if(!state.reminders) state.reminders = [];
+    if(!state.notified) state.notified = {};
+    if(!state.streakRewardsClaimed) state.streakRewardsClaimed = [];
+
+    state.reminders.forEach(r=>{ if(typeof r.done === "undefined") r.done = false; });
+    initStartBonus(isFresh);
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ console.warn("No guardar progreso", e); }
+  }
+
+  function toMinutes(hhmm){ const [h,m]=hhmm.split(":").map(Number); return h*60+m; }
+  function todayKey(d){ return d.toISOString().slice(0,10); }
+
+  function applyMissedPenalties(){
+    const now = new Date();
+    for(let back=1; back<=7; back++){
+      const d = new Date(now); d.setDate(d.getDate()-back);
+      const dow = d.getDay();
+      const classes = SCHEDULE[dow] || [];
+      const key = todayKey(d);
+      if(state.startDate && key < state.startDate) continue;
+      classes.forEach((c, idx)=>{
+        const id = key+"_"+idx;
+        if(!state.checkins[id] && !state.processedPenalties.includes(id)){
+          state.points = Math.max(0, state.points - 20);
+          state.processedPenalties.push(id);
+        }
+      });
+    }
+    saveState();
+  }
+
+  function getTodayClasses(){
+    const now = new Date();
+    return (SCHEDULE[now.getDay()] || []).map((c,idx)=>({...c, idx}));
+  }
+
+  function getRelevantClass(){
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+    const classes = getTodayClasses();
+    for(const c of classes){
+      const start = toMinutes(c.start), end = toMinutes(c.end);
+      if(nowMin >= start-60 && nowMin <= end){
+        return {c, key: todayKey(now)+"_"+c.idx, status:"current"};
+      }
+    }
+    const upcoming = classes.find(c => toMinutes(c.start) > nowMin);
+    if(upcoming){ return {c: upcoming, key: todayKey(now)+"_"+upcoming.idx, status:"upcoming"}; }
+    return null;
+  }
+
+  function computeStreak(){
+    let streak = 0;
+    const now = new Date();
+    for(let back=1; back<=60; back++){
+      const d = new Date(now); d.setDate(d.getDate()-back);
+      const dow = d.getDay();
+      const key = todayKey(d);
+      const classes = SCHEDULE[dow] || [];
+      const remindersDue = (state.reminders||[]).filter(r=>r.date===key);
+      if(classes.length===0 && remindersDue.length===0) continue;
+      const classesOk = classes.every((c,idx)=> !!state.checkins[key+"_"+idx]);
+      const remindersOk = remindersDue.every(r=> !!r.done);
+      if(classesOk && remindersOk){ streak++; } else { break; }
+    }
+    return streak;
+  }
+
+  function renderStreak(){
+    const streak = computeStreak();
+    document.getElementById("streakCount").textContent = "🔥 Racha: "+streak+(streak===1?" día":" días");
+    const milestone = streak >= STREAK_MILESTONE ? Math.floor(streak/STREAK_MILESTONE)*STREAK_MILESTONE : 0;
+    const claimBtn = document.getElementById("streakClaimBtn");
+    if(milestone > 0 && !state.streakRewardsClaimed.includes(milestone)){
+      claimBtn.style.display = "inline-flex";
+      claimBtn.dataset.milestone = milestone;
+    } else {
+      claimBtn.style.display = "none";
+    }
+  }
+
+  function setupStreakClaim(){
+    document.getElementById("streakClaimBtn").addEventListener("click", (e)=>{
+      const milestone = parseInt(e.currentTarget.dataset.milestone, 10);
+      if(!milestone || state.streakRewardsClaimed.includes(milestone)) return;
+      state.streakRewardsClaimed.push(milestone);
+      state.points += 150;
+      saveState(); renderStatus(); renderStreak();
+      document.getElementById("toast").textContent = STREAK_REWARD_MSG.replace("{n}", milestone);
+    });
+  }
+
+  function computeTotalCheckins(){ return Object.keys(state.checkins).length + (state.giftBase || 0); }
+
+  function renderGift(){
+    const container = document.getElementById("giftContainer");
+    if(!container) return;
+    const total = computeTotalCheckins();
+    const unlocked = total >= SECRET_GIFT_THRESHOLD;
+    const pct = Math.min(100, Math.round((total/SECRET_GIFT_THRESHOLD)*100));
+
+    if(!unlocked){
+      container.innerHTML =
+        '<div class="gift-card">' +
+          '<div class="gift-emoji">🔒</div>' +
+          '<h3>Tu sorpresa aún duerme...</h3>' +
+          '<p style="font-size:13px; color:var(--ink-soft); margin:0;">Cada vez que marcas "¡LLEGUÉ!" se acerca un poco más. Cuando llegues a '+SECRET_GIFT_THRESHOLD+' asistencias, se abrirá algo especial para ti 💌</p>' +
+          '<div class="gift-progress-track"><div class="gift-progress-fill" style="width:'+pct+'%;"></div></div>' +
+          '<div class="gift-progress-label">'+total+' / '+SECRET_GIFT_THRESHOLD+' asistencias</div>' +
+        '</div>';
+    } else {
+      const paragraphs = SECRET_GIFT_LETTER.map(p=>'<p>'+p+'</p>').join("");
+      container.innerHTML =
+        '<div class="gift-card">' +
+          '<div class="gift-emoji">💌</div>' +
+          '<h3>'+SECRET_GIFT_TITLE+'</h3>' +
+          '<div class="gift-letter">' + paragraphs + '<div class="gift-signature">'+SECRET_GIFT_SIGNATURE+'</div></div>' +
+        '</div>';
+    }
+  }
+
+  function computeMood(){
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+    const key = todayKey(now);
+    const todayClasses = getTodayClasses();
+    const missedToday = todayClasses.some(c=>{
+      const end = toMinutes(c.end);
+      return nowMin > end && !state.checkins[key+"_"+c.idx];
+    });
+    if(missedToday) return "sad";
+    if(currentRelevant && state.checkins[currentRelevant.key]) return "happy";
+    const hour = now.getHours();
+    if(hour >= 23 || hour < 7) return "sleepy";
+    return "neutral";
+  }
+
+  function renderMoodFx(){
+    const mood = computeMood();
+    const mouth = document.getElementById("moodMouth");
+    const fx = document.getElementById("moodFx");
+    if(!mouth || !fx) return;
+    fx.innerHTML = "";
+    if(mood === "happy"){
+      mouth.setAttribute("d", "M 84 67 Q 90 78 96 67");
+      fx.innerHTML =
+        '<text x="53" y="32" font-size="13" opacity="0.9">💕</text>' +
+        '<text x="120" y="24" font-size="11" opacity="0.85">✨</text>' +
+        '<text x="90" y="12" font-size="12" opacity="0.85" text-anchor="middle">💖</text>';
+    } else if(mood === "sad"){
+      mouth.setAttribute("d", "M 85 72 Q 90 66 95 72");
+      fx.innerHTML = '<path d="M 70 64 Q 67.5 70 70 75 Q 72.5 70 70 64 Z" fill="#6FB6FF" opacity="0.85"/>';
+    } else if(mood === "sleepy"){
+      mouth.setAttribute("d", "M 86 69 Q 90 71 94 69");
+      fx.innerHTML =
+        '<ellipse cx="78" cy="54" rx="4.4" ry="6" fill="#FEE0D2"/>' +
+        '<ellipse cx="102" cy="54" rx="4.4" ry="6" fill="#FEE0D2"/>' +
+        '<path d="M 73 54 Q 78 50 83 54" stroke="#2C1A1D" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M 97 54 Q 102 50 107 54" stroke="#2C1A1D" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<text x="122" y="22" font-size="11" fill="#A24A82" opacity="0.85">z Z z</text>';
+    } else {
+      mouth.setAttribute("d", "M 84 68 Q 90 73 96 68");
+    }
+  }
+
+  function renderGreeting(){
+    const h = new Date().getHours();
+    const msgs = h<12 ? MORNING_MSGS : h<19 ? AFTERNOON_MSGS : EVENING_MSGS;
+    document.getElementById("greetingSub").textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  }
+
+  function renderStatus(){
+    document.getElementById("pointsValue").textContent = state.points;
+    let level = LEVELS[0];
+    for(const l of LEVELS){ if(state.points >= l.min) level = l; }
+    document.getElementById("levelBadge").textContent = "Nivel: "+level.name;
+  }
+
+  function renderDoll(){
+    const topId = state.equipped.top || "default-top";
+    const bottomId = state.equipped.bottom;
+    const shoesId = state.equipped.shoes;
+    const accId = state.equipped.accessory;
+
+    const svgTop = document.getElementById("svgTop");
+    const svgBottom = document.getElementById("svgBottom");
+    const svgShoes = document.getElementById("svgShoes");
+    const svgAcc = document.getElementById("svgAccessory");
+    const svgAccBack = document.getElementById("svgAccessoryBack");
+    const shadowBenji = document.getElementById("shadowBenji");
+
+    svgAccBack.innerHTML = "";
+    shadowBenji.setAttribute("opacity", "0.0");
+
+    // Recuadro dinámico: se extiende solo cuando aparece Benji
+    const dollCard = document.getElementById("dollCard");
+    const mainSvgEl = document.getElementById("mainSvg");
+    if(accId === "benji"){
+      dollCard.classList.add("wide");
+      mainSvgEl.setAttribute("viewBox", "0 0 280 320");
+    } else {
+      dollCard.classList.remove("wide");
+      mainSvgEl.setAttribute("viewBox", "0 0 180 320");
+    }
+
+    // ================= TOPS & DRESSES (Centrado cx=90, ajustado a cintura/caderas) =================
+    if(topId === "cenicienta"){
+      // Vestido Cenicienta Acampanado (Princesa)
+      svgTop.innerHTML = `
+        <!-- Busto a Cintura -->
+        <path d="M 66 92 Q 90 86 114 92 L 102 135 L 78 135 Z" fill="#81D4FA"/>
+        <!-- Falda Super Acampanada -->
+        <path d="M 78 135 L 102 135 C 150 160 165 220 150 250 Q 90 260 30 250 C 15 220 30 160 78 135 Z" fill="#B3E5FC"/>
+        <!-- Mangas de princesa -->
+        <circle cx="60" cy="98" r="12" fill="#E1F5FE"/>
+        <circle cx="120" cy="98" r="12" fill="#E1F5FE"/>
+        <!-- Detalle de cadera -->
+        <path d="M 78 135 Q 90 145 102 135 L 103 140 Q 90 150 77 140 Z" fill="#FFF"/>`;
+    } else if(topId === "bella"){
+      // Vestido de Bella (Amarillo majestuoso)
+      svgTop.innerHTML = `
+        <path d="M 66 92 Q 90 100 114 92 L 102 135 L 78 135 Z" fill="#FBC02D"/>
+        <!-- Falda acampanada con drapeado -->
+        <path d="M 78 135 L 102 135 C 150 160 170 220 155 250 Q 90 260 25 250 C 10 220 30 160 78 135 Z" fill="#FFF59D"/>
+        <path d="M 78 135 Q 90 180 102 135 C 120 180 140 200 135 220 Q 90 240 45 220 C 40 200 60 180 78 135 Z" fill="#FDD835" opacity="0.6"/>
+        <path d="M 50 105 Q 90 125 130 105" stroke="#FBC02D" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+    } else if(topId === "encaje"){
+      svgTop.innerHTML = `
+        <!-- Mangas cortas que cubren el hombro (evita brazo "flotante") -->
+        <path d="M 63 94 Q 49 100 51 116 Q 58 119 63 110 Q 66 100 70 95 Z" fill="#FFFFFF" stroke="#E0D6DC" stroke-width="1"/>
+        <path d="M 117 94 Q 131 100 129 116 Q 122 119 117 110 Q 114 100 110 95 Z" fill="#FFFFFF" stroke="#E0D6DC" stroke-width="1"/>
+        <!-- Blusa ajustada que sigue la curva real del torso y cadera -->
+        <path d="M 63 94 Q 90 87 117 94 L 111 135 C 122 152 121 170 112 180 Q 90 186 68 180 C 59 170 58 152 69 135 Z" fill="#FFFFFF" stroke="#E0D6DC" stroke-width="1"/>
+        <path d="M 70 104 L 110 104" stroke="#E0D6DC" stroke-width="1"/>`;
+    } else if(topId === "mezclilla"){
+      svgTop.innerHTML = `
+        <!-- Mangas cortas -->
+        <path d="M 60 92 Q 45 98 47 114 Q 55 117 60 108 Q 63 98 68 94 Z" fill="#4EA8DE"/>
+        <path d="M 120 92 Q 135 98 133 114 Q 125 117 120 108 Q 117 98 112 94 Z" fill="#4EA8DE"/>
+        <line x1="52" y1="101" x2="58" y2="112" stroke="#2B6CB0" stroke-width="1.5"/>
+        <line x1="128" y1="101" x2="122" y2="112" stroke="#2B6CB0" stroke-width="1.5"/>
+        <!-- Chaqueta de mezclilla ajustada a torso y cadera -->
+        <path d="M 60 92 Q 90 84 120 92 L 112 135 C 124 150 122 168 113 178 Q 90 184 67 178 C 58 168 56 150 68 135 Z" fill="#4EA8DE"/>
+        <line x1="90" y1="92" x2="90" y2="178" stroke="#2B6CB0" stroke-width="2"/>`;
+    } else if(topId === "poleron"){
+      // Polerón Oversize Hello Kitty
+      svgTop.innerHTML = `
+        <!-- Mangas holgadas -->
+        <path d="M 50 96 Q 30 140 40 175 L 58 170 Q 45 130 66 96 Z" fill="#FFB3C6"/>
+        <path d="M 130 96 Q 150 140 140 175 L 122 170 Q 135 130 114 96 Z" fill="#FFB3C6"/>
+        <!-- Torso oversized, extendido hasta la cadera para que no quede "cortado" -->
+        <path d="M 58 92 Q 90 84 122 92 L 128 150 C 130 168 122 182 108 186 Q 90 190 72 186 C 58 182 50 168 52 150 Z" fill="#FFB3C6"/>
+        <!-- Bolsillo -->
+        <path d="M 70 150 L 110 150 L 114 172 L 66 172 Z" fill="#FF9EBB"/>
+        <!-- Cara Hello Kitty -->
+        <ellipse cx="90" cy="120" rx="14" ry="10" fill="#FFF"/>
+        <polygon points="78,115 80,105 86,111" fill="#FFF"/>
+        <polygon points="102,115 100,105 94,111" fill="#FFF"/>
+        <path d="M 98 108 L 94 110 L 98 112 Z" fill="#FF0000"/><path d="M 102 108 L 106 110 L 102 112 Z" fill="#FF0000"/><circle cx="100" cy="110" r="1.5" fill="#FF0000"/>
+        <circle cx="84" cy="120" r="1.2" fill="#000"/><circle cx="96" cy="120" r="1.2" fill="#000"/><ellipse cx="90" cy="123" rx="1.5" ry="1" fill="#FFD700"/>
+      `;
+    } else {
+      // Default vestido rosa acampanado
+      svgTop.innerHTML = `
+        <path d="M 66 92 Q 90 86 114 92 L 102 135 L 78 135 Z" fill="#FF1493"/>
+        <path d="M 78 135 L 102 135 C 140 160 160 215 145 245 Q 90 255 35 245 C 20 215 40 160 78 135 Z" fill="#FF69B4"/>
+        <circle cx="90" cy="110" r="5" fill="#FFD700"/>
+        <path d="M 75 135 L 50 160 L 60 165 Z" fill="#FF1493"/>
+        <path d="M 105 135 L 130 160 L 120 165 Z" fill="#FF1493"/>`;
+    }
+
+    // ================= BOTTOMS =================
+    const currentTop = ALL_ITEMS.find(i=>i.id===topId);
+    if(currentTop && !currentTop.dress && bottomId){
+      if(bottomId === "momjeans"){
+        svgBottom.innerHTML = `
+          <path d="M 76 135 L 104 135 C 122 155 122 175 115 184 L 108 290 L 92 290 L 90 195 L 88 290 L 72 290 L 65 184 C 58 175 58 155 76 135 Z" fill="#4895EF"/>
+          <path d="M 90 135 L 90 185" stroke="#2B6CB0" stroke-width="1.5" fill="none"/>`;
+      } else if(bottomId === "tablones"){
+        svgBottom.innerHTML = `
+          <path d="M 76 135 L 104 135 C 125 155 125 175 128 200 L 52 200 C 55 175 55 155 76 135 Z" fill="#FF4D6D"/>
+          <line x1="65" y1="140" x2="60" y2="200" stroke="#C9184A" stroke-width="1.5"/>
+          <line x1="78" y1="135" x2="75" y2="200" stroke="#C9184A" stroke-width="1.5"/>
+          <line x1="90" y1="135" x2="90" y2="200" stroke="#C9184A" stroke-width="1.5"/>
+          <line x1="102" y1="135" x2="105" y2="200" stroke="#C9184A" stroke-width="1.5"/>
+          <line x1="115" y1="140" x2="120" y2="200" stroke="#C9184A" stroke-width="1.5"/>`;
+      }
+    } else {
+      svgBottom.innerHTML = "";
+    }
+
+    // ================= SHOES (Tridimensionales con Suela, cx1=79, cx2=101) =================
+    if(shoesId === "botas"){
+      svgShoes.innerHTML = `<rect x="69" y="255" width="18" height="42" rx="5" fill="#212529"/><rect x="93" y="255" width="18" height="42" rx="5" fill="#212529"/>`;
+    } else if(shoesId === "cristal"){
+      svgShoes.innerHTML = `<ellipse cx="79" cy="298" rx="11" ry="7" fill="#E0F7FA" opacity="0.85"/><ellipse cx="101" cy="298" rx="11" ry="7" fill="#E0F7FA" opacity="0.85"/><ellipse cx="79" cy="298" rx="11" ry="7" fill="none" stroke="#B8E4EA" stroke-width="1"/><ellipse cx="101" cy="298" rx="11" ry="7" fill="none" stroke="#B8E4EA" stroke-width="1"/>`;
+    } else if(shoesId === "maryjane"){
+      svgShoes.innerHTML = `
+        <path d="M 68 290 Q 68 305 79 305 Q 89 305 89 290 Z" fill="#2B2D42"/>
+        <path d="M 68 302 Q 79 308 89 302 L 89 305 Q 79 308 68 305 Z" fill="#111"/> <!-- Suela negra -->
+        <line x1="68" y1="295" x2="89" y2="295" stroke="#2B2D42" stroke-width="2"/>
+        <circle cx="86" cy="295" r="1.5" fill="#FFD700"/>
+        
+        <path d="M 91 290 Q 91 305 101 305 Q 112 305 112 290 Z" fill="#2B2D42"/>
+        <path d="M 91 302 Q 101 308 112 302 L 112 305 Q 101 308 91 305 Z" fill="#111"/> 
+        <line x1="91" y1="295" x2="112" y2="295" stroke="#2B2D42" stroke-width="2"/>
+        <circle cx="109" cy="295" r="1.5" fill="#FFD700"/>`;
+    } else if(shoesId === "zap-sanrio") {
+      // Zapatillas Sanrio con calcetas blancas
+      svgShoes.innerHTML = `
+        <rect x="70" y="275" width="19" height="18" fill="#FFF"/>
+        <path d="M 70 275 Q 75 272 79.5 275 Q 84 272 89 275" stroke="#FFF" stroke-width="2" fill="none"/>
+        <rect x="91" y="275" width="19" height="18" fill="#FFF"/>
+        <path d="M 91 275 Q 96 272 100.5 275 Q 105 272 110 275" stroke="#FFF" stroke-width="2" fill="none"/>
+        <!-- Zapatilla Izq -->
+        <path d="M 68 288 C 66 300 70 306 80 306 C 88 306 90 300 88 288 Z" fill="#FFF" stroke="#FFB6C1" stroke-width="2"/>
+        <path d="M 68 302 Q 80 310 88 302 L 88 306 Q 80 312 68 306 Z" fill="#FFB6C1"/> <!-- Suela Rosa -->
+        <path d="M 76 295 L 72 298 L 76 301 Z" fill="#FF1493"/><path d="M 80 295 L 84 298 L 80 301 Z" fill="#FF1493"/><circle cx="78" cy="298" r="2" fill="#FF1493"/>
+        <!-- Zapatilla Der -->
+        <path d="M 92 288 C 90 300 94 306 104 306 C 112 306 114 300 112 288 Z" fill="#FFF" stroke="#FFB6C1" stroke-width="2"/>
+        <path d="M 92 302 Q 104 310 112 302 L 112 306 Q 104 312 92 306 Z" fill="#FFB6C1"/> <!-- Suela Rosa -->
+        <path d="M 100 295 L 96 298 L 100 301 Z" fill="#FF1493"/><path d="M 104 295 L 108 298 L 104 301 Z" fill="#FF1493"/><circle cx="102" cy="298" r="2" fill="#FF1493"/>
+      `;
+    } else { 
+      // Zapatos base mejorados (3D + cordones)
+      svgShoes.innerHTML = `
+        <path d="M 70 290 Q 70 305 79 305 Q 89 305 89 290 Z" fill="#FF1493"/>
+        <path d="M 70 302 Q 79 308 89 302 L 89 305 Q 79 308 70 305 Z" fill="#FFF"/>
+        <rect x="72" y="293" width="12" height="3" fill="#FFB6C1"/>
+        <line x1="77" y1="298" x2="81" y2="298" stroke="#FFF" stroke-width="1.5"/><line x1="77" y1="301" x2="81" y2="301" stroke="#FFF" stroke-width="1.5"/>
+        
+        <path d="M 91 290 Q 91 305 101 305 Q 112 305 112 290 Z" fill="#FF1493"/>
+        <path d="M 91 302 Q 101 308 112 302 L 112 305 Q 101 308 91 305 Z" fill="#FFF"/>
+        <rect x="94" y="293" width="12" height="3" fill="#FFB6C1"/>
+        <line x1="99" y1="298" x2="103" y2="298" stroke="#FFF" stroke-width="1.5"/><line x1="99" y1="301" x2="103" y2="301" stroke="#FFF" stroke-width="1.5"/>
+      `;
+    }
+
+    // ================= ACCESORIOS (Benji, Kuromi, Lazo) =================
+    svgAcc.innerHTML = "";
+    if(accId === "benji"){
+      // BENJI: Cx = 190. Mismas dimensiones que la chica (hombros ~60px), torso triangular invertido, musculoso.
+      shadowBenji.setAttribute("opacity", "0.6"); // Habilitar sombra
+      svgAccBack.innerHTML = `
+        <g id="benjiChar">
+           <!-- Piernas de Príncipe (Traje azul) -->
+           <rect x="172" y="178" width="18" height="122" rx="7" fill="#2C3E50"/>
+           <rect x="192" y="178" width="18" height="122" rx="7" fill="#2C3E50"/>
+           <!-- Zapatos formales -->
+           <path d="M 170 300 Q 170 311 180 311 Q 189 311 189 300 Z" fill="#111"/>
+           <path d="M 193 300 Q 193 311 203 311 Q 212 311 212 300 Z" fill="#111"/>
+
+           <!-- Brazos (musculosos, con mano visible en ambos extremos) -->
+           <path d="M 160 90 Q 142 122 146 158 Q 147 171 155 176 Q 164 172 161 161 Q 157 128 173 96 Z" fill="#34495E"/>
+           <circle cx="152" cy="120" r="9" fill="#3E5771"/>
+           <circle cx="156" cy="176" r="8" fill="#F4C2C2"/>
+
+           <path d="M 220 90 Q 237 116 234 145 Q 233 156 226 160 Q 219 157 221 147 Q 223 122 207 96 Z" fill="#34495E"/>
+           <circle cx="228" cy="114" r="9" fill="#3E5771"/>
+           <circle cx="227" cy="152" r="8" fill="#F4C2C2"/>
+           <text x="216" y="145" font-size="18">🌹</text>
+
+           <!-- Torso triangular invertido (hombros anchos, cintura marcada) -->
+           <path d="M 172 88 L 208 88 L 200 178 L 180 178 Z" fill="#ECF0F1"/>
+           <path d="M 183 96 L 197 96 L 190 114 Z" fill="#E74C3C"/> <!-- Corbata roja -->
+           <!-- Insinuación de pectorales -->
+           <path d="M 181 100 Q 186 112 181 126" stroke="#D7DBDD" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.6"/>
+           <path d="M 199 100 Q 194 112 199 126" stroke="#D7DBDD" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+           <!-- Chaqueta de traje (hombros anchos 160 a 220) -->
+           <path d="M 160 90 L 180 88 L 174 178 L 164 178 Z" fill="#34495E"/>
+           <path d="M 220 90 L 200 88 L 206 178 L 216 178 Z" fill="#34495E"/>
+           <path d="M 160 90 L 181 88 L 170 110 Z" fill="#2C3E50"/> <!-- Solapa izq -->
+           <path d="M 220 90 L 199 88 L 210 110 Z" fill="#2C3E50"/> <!-- Solapa der -->
+
+           <!-- Cuello y Cabeza -->
+           <rect x="182" y="72" width="16" height="20" rx="5" fill="#F4C2C2"/>
+           <!-- Cabeza masculina (mandíbula fuerte, mismo ancho proporcional que la chica) -->
+           <ellipse cx="190" cy="49" rx="22" ry="27" fill="#F4C2C2"/>
+
+           <!-- Cabello corto en capas (misma técnica que el de ella, sin hueco en la frente) -->
+           <path d="M 165 46 Q 160 12 190 8 Q 220 12 215 46 Q 190 37 165 46 Z" fill="#2B2229"/>
+           <path d="M 172 41 Q 179 18 190 21 Q 201 18 208 41 Q 199 30 190 30 Q 181 30 172 41 Z" fill="#3B2A26" opacity="0.55"/>
+           <path d="M 181 13 Q 184 21 181 27" stroke="#1A100D" stroke-width="1.3" fill="none" stroke-linecap="round" opacity="0.5"/>
+           <path d="M 199 13 Q 196 21 199 27" stroke="#1A100D" stroke-width="1.3" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+           <!-- Ojos varoniles y boca -->
+           <path d="M 178 42 L 184 42" stroke="#3E2723" stroke-width="2" stroke-linecap="round"/>
+           <path d="M 202 42 L 196 42" stroke="#3E2723" stroke-width="2" stroke-linecap="round"/>
+           <circle cx="181" cy="47" r="1.8" fill="#111"/>
+           <circle cx="199" cy="47" r="1.8" fill="#111"/>
+           <path d="M 183 59 Q 190 63 197 59" stroke="#C98B72" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </g>`;
+    } else if(accId === "mochila"){
+      // MOCHILA KUROMI REAL (Orejas de arlequín y calavera)
+      svgAccBack.innerHTML = `
+        <g transform="translate(130, 115)">
+          <!-- Orejas negras arlequín -->
+          <path d="M 10 5 L -10 -20 Q 0 -25 5 -10 Z" fill="#1A1A24"/>
+          <path d="M 25 5 L 45 -20 Q 35 -25 30 -10 Z" fill="#1A1A24"/>
+          <!-- Bolas rosadas en puntas -->
+          <circle cx="-10" cy="-20" r="5" fill="#FFB6C1"/>
+          <circle cx="45" cy="-20" r="5" fill="#FFB6C1"/>
+          <!-- Base de la mochila -->
+          <ellipse cx="17.5" cy="10" rx="18" ry="14" fill="#1A1A24"/>
+          <ellipse cx="17.5" cy="12" rx="14" ry="10" fill="#FFFFFF"/>
+          <!-- Calaverita rosa -->
+          <path d="M 13 4 Q 17.5 1 22 4 L 20 8 L 15 8 Z" fill="#FFB6C1"/>
+          <path d="M 10 12 L 14 15 M 14 12 L 10 15" stroke="#1A1A24" stroke-width="1.5"/>
+          <path d="M 25 12 L 21 15 M 21 12 L 25 15" stroke="#1A1A24" stroke-width="1.5"/>
+          <path d="M 15 17 Q 17.5 19 20 17" stroke="#1A1A24" stroke-width="1" fill="none"/>
+        </g>`;
+    } else if(accId === "bow"){
+      svgAcc.innerHTML = `
+        <path d="M 100 26 Q 108 18 116 26 Q 108 32 100 26 Z" fill="#FF1493"/>
+        <path d="M 116 26 Q 124 18 132 26 Q 124 32 116 26 Z" fill="#FF1493"/>
+        <circle cx="116" cy="26" r="3.3" fill="#FFD700"/>`;
+    }
+
+    // ================= MASCOTA LUNA (Perro salchicha café) =================
+    const svgPet = document.getElementById("svgPet");
+    if(state.equipped.pet === "luna"){
+      // Dibujada en la esquina inferior izquierda
+      svgPet.innerHTML = `
+        <g transform="translate(190, 260)">
+          <!-- Patas cortitas -->
+          <rect x="-65" y="35" width="8" height="15" rx="4" fill="#5D3A1A"/>
+          <rect x="-52" y="35" width="8" height="15" rx="4" fill="#5D3A1A"/>
+          <rect x="-25" y="35" width="8" height="15" rx="4" fill="#5D3A1A"/>
+          <rect x="-12" y="35" width="8" height="15" rx="4" fill="#5D3A1A"/>
+          <!-- Cola -->
+          <path d="M 0 15 Q 15 0 10 -5" stroke="#5D3A1A" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <!-- Cuerpo largo salchicha -->
+          <rect x="-70" y="10" width="75" height="30" rx="15" fill="#8B5A2B"/>
+          <!-- Cabeza -->
+          <ellipse cx="-80" cy="5" rx="20" ry="18" fill="#8B5A2B"/>
+          <!-- Hocico -->
+          <ellipse cx="-95" cy="12" rx="12" ry="8" fill="#A0693B"/>
+          <circle cx="-105" cy="10" r="3.5" fill="#111"/> <!-- Nariz -->
+          <!-- Ojos -->
+          <circle cx="-85" cy="2" r="3" fill="#111"/>
+          <circle cx="-86" cy="1" r="1" fill="#FFF"/>
+          <!-- Oreja caída -->
+          <ellipse cx="-70" cy="15" rx="8" ry="22" fill="#5D3A1A" transform="rotate(-15 -70 15)"/>
+        </g>`;
+    } else if(svgPet){
+      svgPet.innerHTML = "";
+    }
+    
+    // ================= BADGES TEXTO =================
+    const tagPet = document.getElementById("tagPet");
+    if(tagPet){
+      if(state.equipped.pet === "luna"){ tagPet.style.display = "inline-block"; tagPet.textContent = "🐾 Luna"; }
+      else { tagPet.style.display = "none"; }
+    }
+
+    const itemAcc = ALL_ITEMS.find(i=>i.id===accId);
+    const itemTop = ALL_ITEMS.find(i=>i.id===topId);
+    const itemShoes = ALL_ITEMS.find(i=>i.id===shoesId);
+
+    document.getElementById("tagAcc").textContent = itemAcc ? itemAcc.emoji+" "+itemAcc.name : "Sin accesorio";
+    document.getElementById("tagTop").textContent = itemTop ? itemTop.emoji+" "+itemTop.name : "Vestido Básico";
+    document.getElementById("tagShoes").textContent = itemShoes ? itemShoes.emoji+" "+itemShoes.name : "👟 Zapatitos";
+  }
+
+  let currentRelevant = null;
+  function renderHome(){
+    const rel = getRelevantClass();
+    currentRelevant = rel;
+    const tag = document.getElementById("classTag");
+    const name = document.getElementById("className");
+    const meta = document.getElementById("classMeta");
+    const empty = document.getElementById("classEmpty");
+    const btn = document.getElementById("checkinBtn");
+
+    if(!rel){
+      tag.textContent = "Hoy";
+      name.textContent = "Sin más clases hoy";
+      meta.innerHTML = "";
+      empty.style.display = "block";
+      btn.disabled = true; btn.classList.remove("done");
+      btn.textContent = "Sin clases ahora 💗";
+      renderMoodFx();
+      return;
+    }
+    empty.style.display = "none";
+    tag.textContent = rel.status === "current" ? "Clase en curso" : "Próxima clase";
+    name.textContent = rel.c.name;
+    let chips = "🕐 "+rel.c.start+" – "+rel.c.end;
+    meta.innerHTML = "<span>"+chips+"</span>" + (rel.c.room ? "<span>📍 "+rel.c.room+"</span>" : "") + (rel.c.prof ? "<span>👩‍🏫 "+rel.c.prof+"</span>" : "");
+
+    const alreadyChecked = !!state.checkins[rel.key];
+    if(alreadyChecked){
+      btn.disabled = true; btn.classList.add("done");
+      btn.textContent = "¡Llegaste, mi amor! 💚";
+    } else {
+      btn.disabled = false; btn.classList.remove("done");
+      btn.textContent = "¡LLEGUÉ! 📍";
+    }
+    renderMoodFx();
+  }
+
+  function handleCheckin(){
+    if(!currentRelevant) return;
+    const rel = currentRelevant;
+    if(state.checkins[rel.key]) return;
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+    const start = toMinutes(rel.c.start);
+    const diff = nowMin - start;
+    let gained, msg;
+    if(diff <= 0){ gained = 50; msg = "¡Felicidades mi princesa! Llegaste a tiempo, +50 monedas. ¡Te amo mucho! 💖"; }
+    else if(diff <= 15){ gained = 10; msg = "Llegaste un poquito tarde pero llegaste, +10 monedas. ¡Siempre mejor que faltar! 🌸"; }
+    else { gained = 0; msg = "Llegaste más tarde de lo ideal, mi amor. Mañana lo hacemos mejor 💗"; }
+    state.points = Math.max(0, state.points + gained);
+    state.checkins[rel.key] = true;
+    saveState(); renderStatus(); renderHome(); renderStreak(); renderGift();
+    document.getElementById("toast").textContent = msg;
+  }
+
+  function renderWeek(){
+    const body = document.getElementById("weekBody");
+    body.innerHTML = "";
+    const todayDow = new Date().getDay();
+    for(let d=1; d<=5; d++){
+      SCHEDULE[d].forEach((c, idx)=>{
+        const tr = document.createElement("tr");
+        if(d===todayDow) tr.className = "today";
+        tr.innerHTML =
+          "<td>"+(idx===0 ? '<span class="sched-day">'+DAY_NAMES[d]+'</span>' : "")+"</td>"+
+          "<td>"+c.start+"–"+c.end+"</td>"+
+          "<td>"+c.name+(c.room?'<span class="sched-room">'+c.room+(c.prof?" · "+c.prof:"")+'</span>':"")+"</td>";
+        body.appendChild(tr);
+      });
+    }
+  }
+
+  function renderStore(){
+    const container = document.getElementById("storeContainer");
+    container.innerHTML = "";
+    STORE_CATALOG.forEach(section=>{
+      const wrap = document.createElement("div");
+      wrap.className = "store-section";
+      const grid = document.createElement("div");
+      grid.className = "store-grid";
+      section.items.forEach(item=>{
+        const owned = state.owned.includes(item.id);
+        const equipped = item.slot!=="special" && state.equipped[item.slot]===item.id;
+        const el = document.createElement("div");
+        el.className = "item" + (owned?" owned":"") + (item.slot==="special"?" special":"") + (equipped?" equipped":"");
+        
+        // LABEL LOGIC (COMPRAR, USAR o QUITAR)
+        let label = owned ? (equipped ? "Quitar ✕" : "Usar") : (item.cost+" 👑");
+        
+        el.innerHTML = '<div class="emoji">'+item.emoji+'</div><p>'+item.name+'</p><button data-id="'+item.id+'">'+label+'</button>';
+        grid.appendChild(el);
+      });
+      wrap.innerHTML = "<h4>"+section.section+"</h4>";
+      wrap.appendChild(grid);
+      container.appendChild(wrap);
+    });
+    container.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click", ()=>handleItemClick(btn.getAttribute("data-id")));
+    });
+  }
+
+  function handleItemClick(id){
+    const item = ALL_ITEMS.find(i=>i.id===id);
+    if(!item) return;
+    const owned = state.owned.includes(id);
+    if(!owned){
+      if(item.slot !== "special" && state.points < item.cost){
+        document.getElementById("toast").textContent = "Te faltan monedas para esto, mi princesa 🥺";
+        return;
+      }
+      state.points -= item.cost;
+      if(item.slot === "special"){
+        document.getElementById("toast").textContent = "¡Canjeaste tu Cita Especial! Avísale a tu novio 💌";
+      } else {
+        state.owned.push(id);
+        state.equipped[item.slot] = id;
+        document.getElementById("toast").textContent = "¡Te ves hermosa con "+item.name+"! 💕";
+      }
+    } else if(item.slot !== "special"){
+      // LÓGICA UNEQUIP
+      if (state.equipped[item.slot] === id) {
+        if (item.slot === "top") state.equipped.top = "default-top"; // Nunca topless
+        else state.equipped[item.slot] = null;
+        document.getElementById("toast").textContent = "Te quitaste: " + item.name + " 🌸";
+      } else {
+        state.equipped[item.slot] = id;
+        document.getElementById("toast").textContent = "¡Te ves hermosa con "+item.name+"! 💕";
+      }
+    }
+    saveState(); renderStatus(); renderDoll(); renderStore();
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  function formatReminderDate(date, time){
+    try{
+      const d = new Date(date+"T"+time+":00");
+      const txt = d.toLocaleDateString("es-CL", {weekday:"short", day:"numeric", month:"short"});
+      return txt.charAt(0).toUpperCase()+txt.slice(1)+" · "+time;
+    }catch(e){ return date+" · "+time; }
+  }
+
+  function renderReminders(){
+    const list = document.getElementById("remindersList");
+    list.innerHTML = "";
+    const items = (state.reminders||[]).slice().sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
+    if(items.length === 0){
+      list.innerHTML = '<p class="empty" style="margin:4px 0 0;">Sin recordatorios todavía, agrega el primero arriba 💗</p>';
+      return;
+    }
+    items.forEach(r=>{
+      const dt = new Date(r.date+"T"+(r.time||"00:00")+":00");
+      const isPast = dt.getTime() < Date.now();
+      const div = document.createElement("div");
+      div.className = "reminder-item" + (r.done ? " done" : "");
+      div.innerHTML =
+        '<button class="reminder-check" data-id="'+r.id+'" aria-label="Marcar hecho">'+(r.done?'✓':'')+'</button>' +
+        '<div class="reminder-info"><strong>'+escapeHtml(r.title)+'</strong><span>'+formatReminderDate(r.date, r.time)+'</span></div>' +
+        (isPast && !r.done ? '<span class="reminder-past">Pasado</span>' : '') +
+        (NATIVE ? '' : '<button class="reminder-cal" data-id="'+r.id+'" aria-label="Agregar al calendario">📅</button>') +
+        '<button class="reminder-del" data-id="'+r.id+'" aria-label="Eliminar">✕</button>';
+      list.appendChild(div);
+    });
+    list.querySelectorAll(".reminder-cal").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const r = (state.reminders||[]).find(r=>r.id === btn.getAttribute("data-id"));
+        if(r){
+          shareIcs("recordatorio.ics", buildReminderIcs(r, getLead()));
+          document.getElementById("remToast").textContent = "Abre el archivo y toca «Agregar» 📅";
+        }
+      });
+    });
+    list.querySelectorAll(".reminder-del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        state.reminders = (state.reminders||[]).filter(r=>r.id !== btn.getAttribute("data-id"));
+        saveState(); renderReminders(); renderStreak();
+        if(NATIVE) scheduleAllNotifications();
+      });
+    });
+    list.querySelectorAll(".reminder-check").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const r = (state.reminders||[]).find(r=>r.id === btn.getAttribute("data-id"));
+        if(r){ r.done = !r.done; saveState(); renderReminders(); renderStreak(); if(NATIVE) scheduleAllNotifications(); }
+      });
+    });
+  }
+
+  function setupReminderForm(){
+    document.getElementById("addReminderBtn").addEventListener("click", ()=>{
+      const titleEl = document.getElementById("remTitle");
+      const dateEl = document.getElementById("remDate");
+      const timeEl = document.getElementById("remTime");
+      const title = titleEl.value.trim();
+      const date = dateEl.value;
+      const time = timeEl.value;
+      const remToast = document.getElementById("remToast");
+      if(!title || !date || !time){
+        remToast.textContent = "Completa título, fecha y hora, mi amor 💗";
+        return;
+      }
+      state.reminders = state.reminders || [];
+      state.reminders.push({ id: "r"+Date.now(), title, date, time, done:false, notified:false });
+      saveState(); renderReminders(); scheduleAllNotifications();
+      titleEl.value = ""; dateEl.value = ""; timeEl.value = "";
+      remToast.textContent = "¡Recordatorio agregado! 💖";
+    });
+  }
+
+
+  // ====== Capa nativa (APK con Capacitor): notificaciones locales programadas por Android ======
+  const NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
+  const LN = NATIVE ? ((window.Capacitor.Plugins || {}).LocalNotifications || null) : null;
+  const CH_ID = "clases";
+  let nativeBusy = false, nativeAgain = false;
+
+  async function nativePerm(){
+    try{ const r = await LN.checkPermissions(); return r.display; }catch(e){ return "denied"; }
+  }
+
+  async function updateNotifUINative(btn, status){
+    if(!LN){ btn.disabled = true; btn.textContent = "No disponible"; status.textContent = "No se pudo cargar el módulo de notificaciones."; return; }
+    const perm = await nativePerm();
+    if(perm === "granted"){
+      btn.disabled = true; btn.textContent = "🔔 Notificaciones activadas";
+      status.textContent = "Listo — Fer recibirá avisos 1 hora y 5 minutos antes de cada clase, y a la hora exacta de cada recordatorio, incluso con la app cerrada.";
+      addTestButton(btn);
+    } else if(perm === "denied"){
+      btn.disabled = true; btn.textContent = "🔕 Notificaciones bloqueadas";
+      status.textContent = "Quedaron bloqueadas. Actívalas en Ajustes del celular → Aplicaciones → Fer's Magic → Notificaciones.";
+    } else {
+      btn.disabled = false; btn.textContent = "🔔 Activar notificaciones";
+      status.textContent = "";
+    }
+  }
+
+  function addTestButton(afterBtn){
+    if(document.getElementById("notifTestBtn")) return;
+    const t = document.createElement("button");
+    t.id = "notifTestBtn"; t.className = afterBtn.className; t.style.marginTop = "8px";
+    t.textContent = "🧪 Probar notificación (10 s)";
+    t.addEventListener("click", async ()=>{
+      try{
+        await LN.schedule({ notifications: [{ id: 999999, title: "¡Prueba! 💖", body: "Si ves esto, las notificaciones funcionan, princesa.", channelId: CH_ID, schedule: { at: new Date(Date.now()+10000), allowWhileIdle: true } }] });
+        document.getElementById("remToast").textContent = "Cierra la app y espera 10 segundos 🔔";
+      }catch(e){ document.getElementById("remToast").textContent = "No se pudo programar la prueba."; }
+    });
+    afterBtn.insertAdjacentElement("afterend", t);
+  }
+
+  async function requestNative(){
+    if(!LN){ return; }
+    try{
+      const r = await LN.requestPermissions();
+      if(r.display === "granted"){
+        try{
+          const ex = await LN.checkExactNotificationSetting();
+          if(ex && ex.exact_alarm !== "granted"){ await LN.changeExactNotificationSetting(); }
+        }catch(e){}
+        await scheduleNative();
+        document.getElementById("remToast").textContent = "¡Notificaciones activadas, princesa! 🔔";
+      }
+    }catch(e){ console.warn(e); }
+    updateNotifUI();
+  }
+
+  async function scheduleNative(){
+    if(!LN) return;
+    if(nativeBusy){ nativeAgain = true; return; }
+    nativeBusy = true;
+    try{
+      if((await nativePerm()) !== "granted") return;
+      try{ await LN.createChannel({ id: CH_ID, name: "Clases y recordatorios", description: "Avisos de clases y recordatorios de Fer", importance: 5, visibility: 1, vibration: true }); }catch(e){}
+      const pend = await LN.getPending();
+      if(pend && pend.notifications && pend.notifications.length){
+        await LN.cancel({ notifications: pend.notifications.map(n=>({ id: n.id })) });
+      }
+      const list = [];
+      let id = 1;
+      const lead = getLead();
+      const addAt = (date, title, body)=>{
+        if(date.getTime() <= Date.now() + 2000) return;
+        list.push({ id: id++, title, body, channelId: CH_ID, schedule: { at: date, allowWhileIdle: true } });
+      };
+      // Clases: se repiten cada semana (Android: domingo = 1 ... sábado = 7)
+      Object.keys(SCHEDULE).forEach(d=>{
+        SCHEDULE[d].forEach(c=>{
+          const start = toMinutes(c.start);
+          const weekly = (t, title, body)=>{
+            if(t < 0) return;
+            list.push({ id: id++, title, body, channelId: CH_ID,
+              schedule: { on: { weekday: Number(d) + 1, hour: Math.floor(t/60), minute: t % 60 }, allowWhileIdle: true } });
+          };
+          if(lead.h1) weekly(start - 60, "¡Clase en 1 hora! 💕", pickMsg(HOUR_BEFORE_MSGS, c));
+          if(lead.m5) weekly(start - 5, "¡Ya casi! Faltan 5 minutos ⏰", pickMsg(FIVE_MIN_MSGS, c));
+          if(lead.w1) weekly(start, "Clase en 1 semana 📅", "Dentro de una semana, a esta hora: " + c.name + (c.room ? " (" + c.room + ")" : "") + " 💗");
+        });
+      });
+      // Recordatorios puntuales (solo futuros y no hechos): a la hora exacta + los avisos que ella elija
+      (state.reminders || []).forEach(r=>{
+        if(r.done) return;
+        const dt = new Date(r.date + "T" + r.time + ":00");
+        if(isNaN(dt.getTime())) return;
+        addAt(dt, "Recordatorio 💌", r.title);
+        if(lead.w1) addAt(new Date(dt.getTime() - 7*24*3600000), "Recordatorio en 1 semana 📅", r.title);
+        if(lead.h1) addAt(new Date(dt.getTime() - 60*60000), "Recordatorio en 1 hora 🕐", r.title);
+        if(lead.m5) addAt(new Date(dt.getTime() - 5*60000), "Recordatorio en 5 minutos ⏰", r.title);
+      });
+      if(list.length) await LN.schedule({ notifications: list });
+    }catch(e){
+      console.warn("No se pudieron programar las notificaciones nativas", e);
+    }finally{
+      nativeBusy = false;
+      if(nativeAgain){ nativeAgain = false; scheduleNative(); }
+    }
+  }
+
+  // ====== Calendario (.ics): avisos confiables en iPhone, sin pagar nada ======
+  const SEMESTER_END = "20261206"; // primera semana de diciembre
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  function icsEsc(t){ return String(t == null ? "" : t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+  function icsFold(line){
+    const enc = new TextEncoder(); const out = []; let cur = "", bytes = 0;
+    Array.from(line).forEach(ch=>{
+      const b = enc.encode(ch).length;
+      if(bytes + b > 72){ out.push(cur); cur = " " + ch; bytes = 1 + b; } else { cur += ch; bytes += b; }
+    });
+    out.push(cur);
+    return out.join("\r\n");
+  }
+  function p2(n){ return String(n).padStart(2,"0"); }
+  function icsLocal(d){ return d.getFullYear() + p2(d.getMonth()+1) + p2(d.getDate()) + "T" + p2(d.getHours()) + p2(d.getMinutes()) + "00"; }
+  function icsAlarms(text, lead, atTime){
+    const a = [];
+    const add = (trig, label)=>{ a.push("BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:" + icsEsc(label + " " + text),"TRIGGER:" + trig,"END:VALARM"); };
+    if(atTime) add("PT0M", "Ahora:");
+    if(lead.m5) add("-PT5M", "En 5 minutos:");
+    if(lead.h1) add("-PT1H", "En 1 hora:");
+    if(lead.w1) add("-P7D", "En 1 semana:");
+    return a;
+  }
+  function wrapIcs(name, body){
+    return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Fers Magic Schedule//ES","CALSCALE:GREGORIAN","X-WR-CALNAME:" + icsEsc(name)].concat(body, ["END:VCALENDAR"]).map(icsFold).join("\r\n") + "\r\n";
+  }
+  function buildClassesIcs(lead, from){
+    const today = new Date(from || Date.now()); today.setHours(0,0,0,0);
+    const stamp = icsLocal(new Date(from || Date.now()));
+    const body = [];
+    Object.keys(SCHEDULE).forEach(d=>{
+      const first = new Date(today); first.setDate(today.getDate() + ((Number(d) - today.getDay() + 7) % 7));
+      SCHEDULE[d].forEach((c, i)=>{
+        const [sh, sm] = c.start.split(":").map(Number), [eh, em] = c.end.split(":").map(Number);
+        const s = new Date(first); s.setHours(sh, sm, 0, 0);
+        const e = new Date(first); e.setHours(eh, em, 0, 0);
+        body.push("BEGIN:VEVENT", "UID:clase-" + d + "-" + i + "@fersmagic", "DTSTAMP:" + stamp,
+          "DTSTART:" + icsLocal(s), "DTEND:" + icsLocal(e), "RRULE:FREQ=WEEKLY;UNTIL=" + SEMESTER_END + "T235959",
+          "SUMMARY:" + icsEsc("📚 " + c.name));
+        if(c.room) body.push("LOCATION:" + icsEsc(c.room));
+        if(c.prof) body.push("DESCRIPTION:" + icsEsc("Profesor/a: " + c.prof));
+        body.push.apply(body, icsAlarms(c.name, lead, false));
+        body.push("END:VEVENT");
+      });
+    });
+    return wrapIcs("Clases de Fer", body);
+  }
+  function buildReminderIcs(r, lead){
+    const s = new Date(r.date + "T" + (r.time || "00:00") + ":00");
+    const e = new Date(s.getTime() + 30*60000);
+    const body = ["BEGIN:VEVENT", "UID:rec-" + r.id + "@fersmagic", "DTSTAMP:" + icsLocal(new Date()),
+      "DTSTART:" + icsLocal(s), "DTEND:" + icsLocal(e), "SUMMARY:" + icsEsc("💌 " + r.title)];
+    body.push.apply(body, icsAlarms(r.title, lead, true));
+    body.push("END:VEVENT");
+    return wrapIcs("Recordatorio", body);
+  }
+  async function shareIcs(filename, text){
+    const blob = new Blob([text], { type: "text/calendar;charset=utf-8" });
+    try{
+      const file = new File([blob], filename, { type: "text/calendar" });
+      if(navigator.canShare && navigator.canShare({ files: [file] })){ await navigator.share({ files: [file], title: filename }); return; }
+    }catch(e){ if(e && e.name === "AbortError") return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 15000);
+  }
+  function setupCalendarButtons(){
+    const box = document.getElementById("calBox");
+    if(!box) return;
+    if(NATIVE){ box.style.display = "none"; return; }
+    document.getElementById("calClassesBtn").addEventListener("click", ()=>{
+      shareIcs("clases-fer.ics", buildClassesIcs(getLead()));
+      document.getElementById("remToast").textContent = "Abre el archivo y toca «Agregar todo» 📅";
+    });
+  }
+
+  function supportsNotifications(){ return typeof window !== "undefined" && "Notification" in window; }
+
+  function updateNotifUI(){
+    const btn = document.getElementById("notifBtn");
+    const status = document.getElementById("notifStatus");
+    if(NATIVE){ updateNotifUINative(btn, status); return; }
+    if(!supportsNotifications()){
+      btn.disabled = true; btn.textContent = "No disponible en este navegador";
+      status.textContent = "Este navegador no soporta notificaciones web. En iPhone necesitas Safari 16.4 o más nuevo, con la app agregada a la pantalla de inicio.";
+      return;
+    }
+    const perm = Notification.permission;
+    if(perm === "granted"){
+      btn.disabled = true; btn.textContent = "🔔 Notificaciones activadas";
+      status.textContent = "Listo — Fer recibirá avisos 1 hora y 5 minutos antes de cada clase, y a la hora exacta de cada recordatorio (mientras tenga la app abierta).";
+    } else if(perm === "denied"){
+      btn.disabled = true; btn.textContent = "🔕 Notificaciones bloqueadas";
+      status.textContent = "Quedaron bloqueadas. Para activarlas: Ajustes del iPhone → Safari (o Notificaciones) → busca esta app y permite los avisos.";
+    } else {
+      btn.disabled = false; btn.textContent = "🔔 Activar notificaciones";
+      status.textContent = "";
+    }
+  }
+
+  function requestNotifPermission(){
+    if(NATIVE){ requestNative(); return; }
+    if(!supportsNotifications()){ updateNotifUI(); return; }
+    Notification.requestPermission().then(perm=>{
+      updateNotifUI();
+      if(perm === "granted"){
+        scheduleAllNotifications();
+        document.getElementById("toast").textContent = "¡Notificaciones activadas, princesa! 🔔";
+      }
+    }).catch(()=>{ updateNotifUI(); });
+  }
+
+  function fireNotification(title, body){
+    if(!supportsNotifications() || Notification.permission !== "granted") return;
+    try{
+      if(navigator.serviceWorker && navigator.serviceWorker.ready){
+        navigator.serviceWorker.ready.then(reg=>{
+          if(reg && reg.showNotification){ reg.showNotification(title, {body: body, tag: title}); }
+          else { new Notification(title, {body: body}); }
+        }).catch(()=>{ try{ new Notification(title, {body: body}); }catch(e){} });
+      } else {
+        new Notification(title, {body: body});
+      }
+    }catch(e){ console.warn("No se pudo mostrar la notificación", e); }
+  }
+
+  let scheduledTimers = [];
+  function clearScheduledTimers(){
+    scheduledTimers.forEach(id=>clearTimeout(id));
+    scheduledTimers = [];
+  }
+
+  const MAX_SCHEDULE_MS = 20 * 60 * 60 * 1000;
+
+  function scheduleAt(date, title, body, key){
+    if(state.notified[key]) return;
+    const delay = date.getTime() - Date.now();
+    if(delay <= 0 || delay > MAX_SCHEDULE_MS) return;
+    const id = setTimeout(()=>{
+      fireNotification(title, body);
+      state.notified[key] = true;
+      saveState();
+    }, delay);
+    scheduledTimers.push(id);
+  }
+
+  function scheduleAllNotifications(){
+    if(NATIVE){ scheduleNative(); return; }
+    if(!supportsNotifications() || Notification.permission !== "granted") return;
+    clearScheduledTimers();
+    const now = new Date();
+
+    getTodayClasses().forEach(c=>{
+      const startMin = toMinutes(c.start);
+      const startDate = new Date(now);
+      startDate.setHours(Math.floor(startMin/60), startMin%60, 0, 0);
+      const oneHourBefore = new Date(startDate.getTime() - 60*60000);
+      const fiveMinBefore = new Date(startDate.getTime() - 5*60000);
+      const keyBase = todayKey(now)+"_"+c.idx;
+      const lead = getLead();
+      if(lead.h1) scheduleAt(oneHourBefore, "¡Clase en 1 hora! 💕", pickMsg(HOUR_BEFORE_MSGS, c), keyBase+"_1h");
+      if(lead.m5) scheduleAt(fiveMinBefore, "¡Ya casi! Faltan 5 minutos ⏰", pickMsg(FIVE_MIN_MSGS, c), keyBase+"_5m");
+    });
+
+    (state.reminders||[]).forEach(r=>{
+      if(r.notified) return;
+      const dt = new Date(r.date+"T"+r.time+":00");
+      scheduleAt(dt, "Recordatorio 💌", r.title, "reminder_"+r.id);
+    });
+  }
+
+  function setupLeadPrefs(){
+    const lead = getLead();
+    document.querySelectorAll("#leadBox input[data-lead]").forEach(cb=>{
+      cb.checked = !!lead[cb.getAttribute("data-lead")];
+      cb.addEventListener("change", ()=>{
+        state.leadPrefs = getLead();
+        state.leadPrefs[cb.getAttribute("data-lead")] = cb.checked;
+        saveState();
+        scheduleAllNotifications();
+        document.getElementById("remToast").textContent = "¡Listo, avisos actualizados! 🔔";
+      });
+    });
+    if(NATIVE){
+      const w = document.querySelector(".notif-box .warn-note");
+      if(w) w.style.display = "none";
+    }
+  }
+
+  function setupNotifButton(){
+    document.getElementById("notifBtn").addEventListener("click", requestNotifPermission);
+  }
+
+  function registerServiceWorker(){
+    if(NATIVE || !("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+    let alreadyRefreshed = false;
+    navigator.serviceWorker.addEventListener("controllerchange", ()=>{
+      if(alreadyRefreshed) return;
+      alreadyRefreshed = true;
+      window.location.reload();
+    });
+  }
+
+  function setupTabs(){
+    document.querySelectorAll("nav.tabs button").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+        document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("view-"+btn.getAttribute("data-tab")).classList.add("active");
+      });
+    });
+  }
+
+  function setupBackup(){
+    document.getElementById("genBackupBtn").addEventListener("click", ()=>{
+      const code = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+      document.getElementById("backupText").value = code;
+    });
+    document.getElementById("restoreBackupBtn").addEventListener("click", ()=>{
+      const code = document.getElementById("backupText").value.trim();
+      if(!code) return;
+      try{
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(code))));
+        state = Object.assign({ points:120, owned:[], equipped:{}, checkins:{}, processedPenalties:[], reminders:[], notified:{}, streakRewardsClaimed:[] }, parsed);
+        if(!state.reminders) state.reminders = [];
+        if(!state.notified) state.notified = {};
+        if(!state.streakRewardsClaimed) state.streakRewardsClaimed = [];
+        initStartBonus();
+        saveState(); renderStatus(); renderDoll(); renderHome(); renderStore(); renderReminders(); renderStreak(); renderGift();
+        document.getElementById("toast").textContent = "¡Progreso restaurado, princesa! 💖";
+      }catch(e){
+        alert("Ese código no es válido.");
+      }
+    });
+  }
+
+  function init(){
+    loadState();
+    applyMissedPenalties();
+    renderGreeting();
+    renderStatus();
+    renderDoll();
+    renderHome();
+    renderWeek();
+    renderStore();
+    renderReminders();
+    renderStreak();
+    renderGift();
+    if(bonusJustApplied){ document.getElementById("toast").textContent = "🎁 ¡Recibiste 120 monedas de regalo, princesa!"; }
+    setupTabs();
+    setupBackup();
+    setupReminderForm();
+    setupNotifButton();
+    setupLeadPrefs();
+    setupCalendarButtons();
+    setupStreakClaim();
+    updateNotifUI();
+    registerServiceWorker();
+    
+    document.getElementById("checkinBtn").addEventListener("click", handleCheckin);
+    
+    document.getElementById("resetBtn").addEventListener("click", ()=>{
+      if(confirm("¿Reiniciar todo el progreso de Fer?")){
+        try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+        state = { points: 120, owned: ["bow", "default-top"], equipped: {accessory:"bow", top:"default-top", bottom:null, shoes:null, pet:null}, checkins: {}, processedPenalties: [], reminders: [], notified: {}, streakRewardsClaimed: [], startDate: todayKey(new Date()), giftBase: START_GIFT, coinBonus: true };
+        clearScheduledTimers();
+        if(NATIVE) scheduleAllNotifications();
+        renderStatus(); renderDoll(); renderHome(); renderStore(); renderReminders(); renderStreak(); renderGift();
+      }
+    });
+
+    if(NATIVE){
+      scheduleAllNotifications();
+    } else if(supportsNotifications() && Notification.permission === "granted"){
+      scheduleAllNotifications();
+    }
+    document.addEventListener("visibilitychange", ()=>{
+      if(!document.hidden){ scheduleAllNotifications(); }
+    });
+    setInterval(()=>{ renderHome(); if(!NATIVE) scheduleAllNotifications(); }, 5*60000);
+  }
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
